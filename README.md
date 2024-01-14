@@ -1,7 +1,7 @@
 # README Generator
 ## Description
- Comand line program that writes a custom README file based on user input. 
-
+Comand line program that writes a custom README file based on user input. 
+Most content in this README has been created by using this program. 
 A video demonstrating program functionality can be accessed [here](https://drive.google.com/file/d/1X2O2zCe9eXUtgtoKTXR2MHSD4xbvoMB1/view).
 
 ## Table of Contents
