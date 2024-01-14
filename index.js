@@ -73,7 +73,6 @@ function writeToFile() {
   inquirer
   .prompt (questions)   
   .then((answers) => {
-    console.log(answers)
     let contents = [];
     for (const element in answers) {
       if(answers[element] != "" && element != "title" && element != "description" && element != "contents" && element != "email") {
@@ -84,18 +83,17 @@ function writeToFile() {
         }
       }
     }
-    console.log(contents)
+
     for(const answer in answers) {
       if(answers[answer] != "") {
         const content = answers[answer].replace(/  /g, " \n\n ");
-        console.log(content);
         if(answer === "contents" && content === "Yes" ) {
           fs.appendFileSync("README.md", `## Table of Contents\n\n`) 
           contents.forEach((section) => fs.appendFileSync("README.md", `[${capitaliseTitle(section)}](#${section})\n\n`))
         }
         answer === "title" ?  fs.appendFileSync("README.md", `# ${content}\n`) :
         answer === "license" ? fs.appendFileSync("README.md", `## License\n [![License: ${content}](https://img.shields.io/badge/License-${content}-blue.svg)](https://opensource.org/licenses/${content})\n`) :
-        answer === "username" ?  fs.appendFileSync("README.md", `## Questions\n For questions, contact me through the links below:\n\n GitHub: [${content}](https://github.com/${content})\n\n`) :
+        answer === "username" ?  fs.appendFileSync("README.md", `## Questions\n For questions, contact me through the methods below:\n\n GitHub: [${content}](https://github.com/${content})\n\n`) :
         answer === "email" ?  fs.appendFileSync("README.md",`Email: ${content}\n`) :
         answer != "contents"? fs.appendFileSync("README.md",`## ${capitaliseTitle(answer)}\n ${content}\n`) :
         console.log("")
@@ -107,6 +105,7 @@ function writeToFile() {
 
 function init() {
   console.log("This is a program that generates content for a README file by taking in user content.");
+  console.log("Just write the content for each section then press Enter.")
   console.log("During user input for each section, use double space where a line break should go and it will be formatted automatically.");
   console.log("To skip a section, please leave it blank.")
   writeToFile()
