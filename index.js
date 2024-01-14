@@ -5,15 +5,21 @@ const generateMarkdown = require("./utils/generateMarkdown");
 
 // array of questions for user
 const questions = [
-      {
+    {
+      type: 'input',
+      message: 'What is the project title?',
+      name: 'title'
+    },
+    {
         type: 'input',
         message: 'Add a short description: ',
         name: 'description',
       },
       {
-        type: 'input',
+        type: 'list',
         message: 'Add a table of contents: ',
         name: 'contents',
+        choices:["Yes", "No"]
       },  
       {
         type: 'input',
@@ -53,60 +59,58 @@ const questions = [
       }
 ];
 
-const titleQuestion = {
-  type: 'input',
-  message: 'What is the project title?',
-  name: 'title',
+
+function capitaliseTitle(title) {
+  const firstLetter = title.charAt(0)
+  const firstLetterCap = firstLetter.toUpperCase()
+  const remainingLetters = title.slice(1)
+  const capitalisedWord = firstLetterCap + remainingLetters;
+  return capitalisedWord;
 }
-let title;
-let fileName;
 
 // function to write README file
-function writeToFile(data) {
-    fs.writeFile("README.md", data, (err) =>
-  err ? console.error(err) : console.log('Section added!')
-);
-}
-
-let email;
-let username;
-
-function licenseBadge(choice) {
-  if(choice === "MIT") {
-    fs.writeFile(fileName, "[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)")
-  } else if (choice === "GPLv3") {
-    fs.writeFile(fileName, "[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)")
-  } else if (choice === "Apache") {
-    fs.writeFile(fileName, "[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)")
-  } else if (choice === "BSD 3-clause") {
-    fs.writeFile(fileName, "[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)")
-  } else if (choice === "Unlicense") {
-    fs.writeFile(fileName, "[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)")
-  }
-}
-
-// function to initialize program
-function init() {
-inquirer
-.prompt (titleQuestion)   
-.then((response) => {
-  title = response;
-  writeToFile(generateMarkdown(response))
-})
-.then(() => {
-  for (const question of questions) {
+function writeToFile() {
   inquirer
-  .prompt (question)   
-  .then((response) => {
-  if( question.type === "input") {
-    question.name === "username" ? writeToFile(`## Questions\n ### ${question.name.charAt(0).toUpperCase()}\n [${response}](https://https://github.com/${response})`) :
-    question.name === "email" ? writeToFile(`### ${question.name.charAt(0).toUpperCase()}\n ${response}`) :
-    writeToFile(fileName, `## ${question.name.charAt(0).toUpperCase()}\n ${response}`)
-  } else if (question.type === "list") {
-   licenseBadge(response);
-  }
-})
-}})}
+  .prompt (questions)   
+  .then((answers) => {
+    console.log(answers)
+    let contents = [];
+    for (const element in answers) {
+      if(answers[element] != "" && element != "title" && element != "description" && element != "contents" && element != "email") {
+        if(element === "username") { 
+        contents.push("questions")
+        } else {
+        contents.push(element)
+        }
+      }
+    }
+    console.log(contents)
+    for(const answer in answers) {
+      if(answers[answer] != "") {
+        const content = answers[answer].replace(/  /g, " \n\n ");
+        console.log(content);
+        if(answer === "contents" && content === "Yes" ) {
+          fs.appendFileSync("README.md", `## Table of Contents\n\n`) 
+          contents.forEach((section) => fs.appendFileSync("README.md", `[${capitaliseTitle(section)}](#${section})\n\n`))
+        }
+        answer === "title" ?  fs.appendFileSync("README.md", `# ${content}\n`) :
+        answer === "license" ? fs.appendFileSync("README.md", `## License\n [![License: ${content}](https://img.shields.io/badge/License-${content}-blue.svg)](https://opensource.org/licenses/${content})\n`) :
+        answer === "username" ?  fs.appendFileSync("README.md", `## Questions\n For questions, contact me through the links below:\n\n GitHub: [${content}](https://github.com/${content})\n\n`) :
+        answer === "email" ?  fs.appendFileSync("README.md",`Email: ${content}\n`) :
+        answer != "contents"? fs.appendFileSync("README.md",`## ${capitaliseTitle(answer)}\n ${content}\n`) :
+        console.log("")
+      }
+    }
+ })
+}
 
+
+function init() {
+  console.log("This is a program that generates content for a README file by taking in user content.");
+  console.log("During user input for each section, use double space where a line break should go and it will be formatted automatically.");
+  console.log("To skip a section, please leave it blank.")
+  writeToFile()
+}
 // // function call to initialize program
-init();
+init()
+
